@@ -1,7 +1,8 @@
-import {userSchema} from '../models/users.models.js';
+import {tweetSchema} from '../models/tweets.models.js';
+import { users } from '../app.js';
 
-export async function validateUser(req, res, next){
-    const validation = userSchema.validate(req.body, {abortEarly:false});
+export async function validateTweet(req, res, next){
+    const validation = tweetSchema.validate(req.body, {abortEarly:false});
 
     if (validation.error){
         const errors = validation.error.details.
@@ -10,19 +11,19 @@ export async function validateUser(req, res, next){
         return res.status(400).send('Todos os campos são obrigatórios');
     }
 
-    const {username, avatar} = req.body;
+    const {username, tweet} = req.body;
 
     try {
-        if (users.includes(username))
-            return res.status(404).send('Usuário já cadastrado');
+        if (!users.find((user) => user.username === username))
+            return res.status(404).send('UNAUTHORIZED');
     } catch(error){
         console.log(error);
         res.status(500).send(error.message);
     }
 
-    res.locals.user = {
+    res.locals.tweet = {
         username,
-        avatar
+        tweet
     }
     next();
 }
